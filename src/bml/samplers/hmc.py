@@ -33,7 +33,12 @@ class DualAveragingHMC():
             for _ in range(1, L_m+1):
                 theta_tilde, r_tilde = leapfrog(theta_tilde, r_tilde, epsilon, self.grad)
 
-            alpha = min(1, np.exp(self.L(theta_tilde) - 0.5 * np.dot(r_tilde, r_tilde)) / np.exp(self.L(theta_prev) - 0.5 * np.dot(r0, r0)))
+            # Compute acceptance ratio in log space to avoid overflow
+            log_ratio = (self.L(theta_tilde) - 0.5 * np.dot(r_tilde, r_tilde)) - (self.L(theta_prev) - 0.5 * np.dot(r0, r0))
+            if np.isnan(log_ratio):
+                alpha = 0.0
+            else:
+                alpha = min(1.0, np.exp(min(log_ratio, 0.0))) if log_ratio < 0 else 1.0
             if np.random.rand() < alpha:
                 theta_next = theta_tilde
                 r_next = -r_tilde
