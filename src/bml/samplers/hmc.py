@@ -1,5 +1,5 @@
 import numpy as np
-from utils import leapfrog, find_reasonable_epsilon
+from bml.samplers.utils import leapfrog, find_reasonable_epsilon
 
 
 class DualAveragingHMC():
