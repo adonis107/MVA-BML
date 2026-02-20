@@ -1,3 +1,24 @@
 .venv
 output/
 *copie*
+
+# Latex files
+*.aux
+*.bbl
+*.bcf
+*.blg
+*.fdb_latexmk
+*.fls
+*.synctex.gz
+*.log
+*.nav
+*.out
+*.snm
+*.toc
+*.run.xml
+*.xsim
+
+# Python
+*.pyc
+__pycache__/
+*.egg-info/
