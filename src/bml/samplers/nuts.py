@@ -220,6 +220,8 @@ class DualAveragingNUTS():
         theta_prev = theta0
         samples = [theta0]
 
+        stats = {'h_stat': [], 'epsilon': [], 'epsilon_bar': [], 'trajectory_length': []}
+
         for m in range(1, M+1):
             # Sample momentum
             r0 = np.random.normal(size=theta_prev.shape)
@@ -270,4 +272,9 @@ class DualAveragingNUTS():
             theta_prev = theta_next
             samples.append(theta_prev)
 
-        return np.array(samples)
+            stats['h_stat'].append(alpha / n_alpha if n_alpha > 0 else 0.0)
+            stats['epsilon'].append(epsilon)
+            stats['epsilon_bar'].append(epsilon_bar)
+            stats['trajectory_length'].append(2**(j-1))
+
+        return np.array(samples), stats

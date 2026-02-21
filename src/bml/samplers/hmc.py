@@ -3,9 +3,10 @@ from bml.samplers.utils import leapfrog, find_reasonable_epsilon
 
 
 class DualAveragingHMC():
-    def __init__(self, L, grad):
+    def __init__(self, L, grad, safe=False):
         self.L = L
         self.grad = grad
+        self.safe = safe
     
     def sample(self, theta0, delta, lam, M, M_adapt):
         """Runs the Dual Averaging HMC sampler."""
@@ -21,6 +22,8 @@ class DualAveragingHMC():
         theta_prev = theta0
         samples = [theta0]
 
+        stats = {'h_stat': [], 'epsilon': [], 'epsilon_bar': [], 'trajectory_length': []}
+
         for m in range(1, M+1):
             # Sample momentum
             r0 = np.random.normal(size=theta_prev.shape)
@@ -29,6 +32,9 @@ class DualAveragingHMC():
             theta_tilde = theta_prev
             r_tilde = r0
             L_m = max(1, round(lam / epsilon))
+
+            # Add safety check to prevent excessively long trajectories
+            if self.safe: L_m = min(L_m, 2000)
 
             for _ in range(1, L_m+1):
                 theta_tilde, r_tilde = leapfrog(theta_tilde, r_tilde, epsilon, self.grad)
@@ -55,6 +61,11 @@ class DualAveragingHMC():
 
             samples.append(theta_next)
             theta_prev = theta_next
+
+            stats['h_stat'].append(alpha)
+            stats['epsilon'].append(epsilon)
+            stats['epsilon_bar'].append(epsilon_bar)
+            stats['trajectory_length'].append(L_m)
         
-        return np.array(samples)
+        return np.array(samples), stats
 
