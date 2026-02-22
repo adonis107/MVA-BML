@@ -23,11 +23,11 @@
 \author{%
   Adonis Jamal \\
   ENS Paris-Saclay \\
-  \texttt{adonis.jamal@ens-paris-saclay.fr}\\
+  \texttt{\small adonis.jamal@ens-paris-saclay.fr}\\
   \And
   Jean-Vincent Martini \\ 
   ENS Paris-Saclay \\
-  \texttt{jean-vincent.martini@ens-paris-saclay.fr} \\
+  \texttt{\small jean-vincent.martini@ens-paris-saclay.fr} \\
 }
 
 
@@ -91,8 +91,41 @@ The dual averaging scheme reliably matches the realised acceptance statistic to 
 
 \section{Our Implementation and Extensions}
 
-\subsection{The Transition Kernel and Proof of Detailed Balance}
+\subsection{Theoretical Complements}
 
+\subsubsection{Rigorous Proof of Uniform Distribution over the Candidate Set}
+
+In the original paper, the uniformity of the conditional distribution over the candidate set $\mathcal{C}$ (Equation (2) in the paper) is derived very concisely from conditions C.1 to C.4. The argument is compressed into a few proportionality statements. We restate it more explicitly.
+
+Let $w=(\theta,r)$. The augmented joint density is:
+\[
+p(\theta,r,u) \propto \mathbb{I}\!\left[u \le \exp\!\left(L(\theta)-\tfrac12 r\cdot r\right)\right].
+\]
+Conditioning on $(u,\mathcal{B},\mathcal{C},\varepsilon)$ gives:
+\begin{equation}
+p(w \mid u,\mathcal{B},\mathcal{C},\varepsilon)
+\propto p(\mathcal{B},\mathcal{C}\mid w,u,\varepsilon)\, p(w\mid u).
+\label{eq:cond_factorization}
+\end{equation}
+
+First, by definition of the slice,
+$p(w\mid u) \propto \mathbb{I}\!\left[u \le \exp\!\left(L(\theta)-\tfrac12 r\cdot r\right)\right]$. Then, Condition C.3 ensures that $w\in\mathcal{C}$ implies the slice constraint holds. Hence on $\mathcal{C}$ the indicator equals $1$, and $p(w\mid u) \propto 1 \quad \text{for } w\in\mathcal{C}$.
+
+Second, by C.2 the current state always belongs to $\mathcal{C}$, and by C.4 the probability of generating the same $(\mathcal{B},\mathcal{C})$ is identical for any $w\in\mathcal{C}$. Therefore, $p(\mathcal{B},\mathcal{C}\mid w,u,\varepsilon)
+\propto \mathbb{I}[w\in\mathcal{C}]$.
+
+Substituting into \eqref{eq:cond_factorization} yields $p(w \mid u,\mathcal{B},\mathcal{C},\varepsilon)
+\propto \mathbb{I}[w\in\mathcal{C}]$,
+which shows that the conditional distribution is uniform over $\mathcal{C}$. Finally, by C.1 (volume preservation of leapfrog), elements of $\mathcal{C}$ can be treated as having equal probability mass, so the normalized distribution is
+\[
+p(w \mid u,\mathcal{B},\mathcal{C},\varepsilon)
+= \frac{1}{|\mathcal{C}|}\,\mathbb{I}[w\in\mathcal{C}],
+\]
+as required. \todo{pareil a voir si on garde}
+
+\subsubsection{The Transition Kernel and Proof of Detailed Balance}
+
+We now turn to the second key ingredient ensuring correctness of Efficient NUTS, the memory-efficient transition kernel, whose role is to preserve the uniform distribution over the candidate set $\mathcal{C}$ while enabling incremental sampling from newly constructed subtrees.
 To reduce memory complexity from $\mathcal{O}(2^j)$ to $\mathcal{O}(j)$, Efficient NUTS introduces a custom transition kernel $T(w'|w, \mathcal{C})$. Instead of uniformly sampling the full candidate set $\mathcal{C}$, the algorithm partitions $\mathcal{C}$ into $\mathcal{C}^{old}$ (previously visited states) and $\mathcal{C}^{new}$ (states added during the final doubling). For a current state $w \in \mathcal{C}^{old}$, it proposes a jump to $w' \in \mathcal{C}^{new}$ uniformly and accepts it with probability $\min\left(1, \frac{|\mathcal{C}^{new}|}{|\mathcal{C}^{old}|}\right)$. This allows incremental sampling from subtrees without storing all states, while favoring exploration of distant regions.
 
 The authors state that this kernel satisfies detailed balance with respect to the uniform distribution $p(w|\mathcal{C}) = \frac{1}{|\mathcal{C}|}$, but omit the exact proof. We provide a brief derivation here. 
