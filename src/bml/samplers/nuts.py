@@ -3,10 +3,11 @@ from bml.samplers.utils import leapfrog, find_reasonable_epsilon
 
 
 class NaiveNUTS():
-    def __init__(self, epsilon, L, grad):
+    def __init__(self, epsilon, L, grad, max_depth=10):
         self.epsilon = epsilon
         self.L = L
         self.grad = grad
+        self.max_depth = max_depth
 
     def build_tree(self, theta, r, log_u, v, j, epsilon, L, grad, delta_max=1000):
         """Recursively builds a binary tree for the NUTS algorithm."""
@@ -62,7 +63,7 @@ class NaiveNUTS():
             s = 1
 
             # Build the tree until the stopping criterion is met
-            while s == 1:
+            while s == 1 and j < self.max_depth:
                 # Choose a direction
                 v = np.random.choice([-1, 1])
 
@@ -84,10 +85,11 @@ class NaiveNUTS():
     
 
 class EfficientNUTS():
-    def __init__(self, epsilon, L, grad):
+    def __init__(self, epsilon, L, grad, max_depth=10):
         self.epsilon = epsilon
         self.L = L
         self.grad = grad
+        self.max_depth = max_depth
 
     def build_tree(self, theta, r, log_u, v, j, epsilon, L, grad, delta_max=1000):
         """Recursively builds a binary tree for the Efficient NUTS algorithm."""
@@ -143,7 +145,7 @@ class EfficientNUTS():
             s = 1
 
             # Build the tree until the stopping criterion is met
-            while s == 1:
+            while s == 1 and j < self.max_depth:
                 # Choose a direction
                 v = np.random.choice([-1, 1])
 
@@ -166,9 +168,10 @@ class EfficientNUTS():
 
 
 class DualAveragingNUTS():
-    def __init__(self, L, grad):
+    def __init__(self, L, grad, max_depth=10):
         self.L = L
         self.grad = grad
+        self.max_depth = max_depth
 
     def build_tree(self, theta, r, log_u, v, j, epsilon, theta0, r0, L, grad, delta_max=1000):
         """Recursively builds a binary tree for the Dual Averaging NUTS algorithm."""
@@ -241,7 +244,7 @@ class DualAveragingNUTS():
             s = 1
 
             # Build the tree until the stopping criterion is met
-            while s == 1:
+            while s == 1 and j < self.max_depth:
                 # Choose a direction
                 v = np.random.choice([-1, 1])
 
