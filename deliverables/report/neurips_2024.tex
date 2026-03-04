@@ -41,6 +41,8 @@
   This paper analyzes Hoffman and Gelman's article, "The No-U-Turn Sampler: Adaptively Setting Path Lengths in Hamiltonian Monte Carlo" \cite{main}, an extension of Hamiltonian Monte Carlo that eliminates manual path-length tuning by adaptively setting it during sampling. We critically evaluate the strengths, weaknesses, and practical limitations of NUTS using our own implementation. Code is available at \url{https://github.com/adonis107/MVA-BML}.
 \end{abstract}
 
+\vspace*{-1cm}
+
 \section{Introduction and Context}
 
 This report provides a comprehensive review of the article "The No-U-Turn Sampler: Adaptively Setting Path Lengths in Hamiltonian Monte Carlo" written by Matthew D. Hoffman and Andrew Gelman \cite{main}. The paper addresses a central practical limitation of Hamiltonian Monte Carlo (HMC) methods: the need to manually tune the path length parameter, which can significantly affect the efficiency of sampling. By proposing the No-U-Turn Sampler (NUTS), the authors introduce an extension to HMC that adaptively determines the path length during sampling while retaining, and in some cases improving, the efficiency of well-tuned HMC. \\
@@ -94,7 +96,7 @@ which shows that the conditional distribution is uniform over $\mathcal{C}$. Fin
 p(w \mid u,\mathcal{B},\mathcal{C},\varepsilon)
 = \frac{1}{|\mathcal{C}|}\,\mathbb{I}[w\in\mathcal{C}],
 \]
-as required. \todo{pareil a voir si on garde} 
+as required. 
 
 \paragraph{The Transition Kernel and Proof of Detailed Balance.} We now turn to the second key ingredient ensuring correctness of Efficient NUTS, the memory-efficient transition kernel, whose role is to preserve the uniform distribution over the candidate set $\mathcal{C}$ while enabling incremental sampling from newly constructed subtrees.
 To reduce memory complexity from $\mathcal{O}(2^j)$ to $\mathcal{O}(j)$, Efficient NUTS introduces a custom transition kernel $T(w'|w, \mathcal{C})$. Instead of uniformly sampling the full candidate set $\mathcal{C}$, the algorithm partitions $\mathcal{C}$ into $\mathcal{C}^{old}$ (previously visited states) and $\mathcal{C}^{new}$ (states added during the final doubling). For a current state $w \in \mathcal{C}^{old}$, it proposes a jump to $w' \in \mathcal{C}^{new}$ uniformly and accepts it with probability $\min\left(1, \frac{|\mathcal{C}^{new}|}{|\mathcal{C}^{old}|}\right)$. This allows incremental sampling from subtrees without storing all states, while favoring exploration of distant regions.\\
@@ -111,7 +113,7 @@ Multiplying both sides by $|\mathcal{C}| |\mathcal{C}^{old}| |\mathcal{C}^{new}|
 \begin{equation*}
     |\mathcal{C}^{old}| \min\left(1, \frac{|\mathcal{C}^{new}|}{|\mathcal{C}^{old}|}\right) = |\mathcal{C}^{new}| \min\left(1, \frac{|\mathcal{C}^{old}|}{|\mathcal{C}^{new}|}\right) \Rightarrow \min(|\mathcal{C}^{old}|, |\mathcal{C}^{new}|) = \min(|\mathcal{C}^{new}|, |\mathcal{C}^{old}|) 
 \end{equation*}
-Since both sides are trivially equal, detailed balance holds, proving that the memory-efficient transition kernel preserves the target uniform distribution over $\mathcal{C}$. \todo{a voir si on garde}
+Since both sides are trivially equal, detailed balance holds, proving that the memory-efficient transition kernel preserves the target uniform distribution over $\mathcal{C}$. 
 
 \paragraph{Empirical Evaluation.}
 The authors evaluate NUTS and HMC on four targets: a 250-dimensional multivariate normal, the posterior of a Bayesian logistic regression (25 parameters) and its hierarchical extension (302 parameters) both fitted to the German credit data set, and a 3001-dimensional stochastic volatility model fitted to S\&P~500 returns. Performance is measured as effective sample size (ESS) per gradient evaluation, with the minimum ESS across dimensions reported. HMC is tested across a grid of simulation lengths and target acceptance rates, while NUTS is tested across values of $\delta$ only, for a total of over 3800 experiments. \\
@@ -130,6 +132,7 @@ However, some limitations remain. The dual-averaging scheme introduces hyperpara
 
 
 {\tiny
+\setlength{\bibsep}{1pt}   
 \bibliographystyle{unsrtnat}
 \bibliography{bibliography}
 }
