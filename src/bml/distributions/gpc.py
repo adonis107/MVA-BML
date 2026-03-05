@@ -20,22 +20,22 @@ class GPClassification:
 
     def __init__(self, X, y, length_scale=1.0, signal_var=1.0, jitter=1e-6):
         self.X = X
-        self.y = y  # {-1, +1}
+        self.y = y
         self.N = X.shape[0]
-        self.d = self.N  # one latent variable per data point
+        self.d = self.N
 
         self.length_scale = length_scale
         self.signal_var = signal_var
         self.jitter = jitter
 
-        # Pre-compute the kernel matrix and its inverse / Cholesky
+        # Kernel matrix and inverse / Cholesky
         self.K = self._rbf_kernel(X)
         self.L_chol = np.linalg.cholesky(self.K)
         self.K_inv = np.linalg.solve(
             self.K, np.eye(self.N)
         )
 
-        # Pre-compute log-determinant for normalisation (constant, not needed for sampling)
+        # Log-determinant for normalisation
         self.log_det_K = 2.0 * np.sum(np.log(np.diag(self.L_chol)))
 
     def _rbf_kernel(self, X):
@@ -58,10 +58,10 @@ class GPClassification:
         if np.any(np.abs(f) > 500.0):
             return -np.inf
 
-        # Log-prior: f ~ N(0, K)
+        # Log-prior
         log_prior = -0.5 * f @ self.K_inv @ f
 
-        # Log-likelihood: logistic link
+        # Log-likelihood
         z = -self.y * f
         log_lik = -np.sum(np.logaddexp(0, z))
 

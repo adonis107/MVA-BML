@@ -23,12 +23,11 @@ class BayesianNeuralNetwork:
 
     def __init__(self, X, y, hidden_dims=(10, 10), sigma_sq=100.0):
         self.X = X
-        self.y = y  # {0, 1}
+        self.y = y
         self.N, self.input_dim = X.shape
         self.h1, self.h2 = hidden_dims
         self.sigma_sq = sigma_sq
 
-        # Pre-compute parameter counts and slice indices
         self.n_W1 = self.input_dim * self.h1
         self.n_b1 = self.h1
         self.n_W2 = self.h1 * self.h2
@@ -38,7 +37,7 @@ class BayesianNeuralNetwork:
 
         self.d = self.n_W1 + self.n_b1 + self.n_W2 + self.n_b2 + self.n_W3 + self.n_b3
 
-        # Pre-compute slice boundaries
+        # slice boundaries
         idx = 0
         self.s_W1 = (idx, idx + self.n_W1); idx += self.n_W1
         self.s_b1 = (idx, idx + self.n_b1); idx += self.n_b1
@@ -62,16 +61,16 @@ class BayesianNeuralNetwork:
         W1, b1, W2, b2, W3, b3 = self._unpack(theta)
 
         # Layer 1
-        z1 = self.X @ W1 + b1       # (N, h1)
-        a1 = np.tanh(z1)            # (N, h1)
+        z1 = self.X @ W1 + b1
+        a1 = np.tanh(z1)
 
         # Layer 2
-        z2 = a1 @ W2 + b2           # (N, h2)
-        a2 = np.tanh(z2)            # (N, h2)
+        z2 = a1 @ W2 + b2
+        a2 = np.tanh(z2)
 
         # Output layer
-        z3 = (a2 @ W3 + b3).ravel() # (N,)
-        p = _sigmoid(z3)            # (N,)
+        z3 = (a2 @ W3 + b3).ravel()
+        p = _sigmoid(z3) 
 
         return W1, b1, W2, b2, W3, b3, z1, a1, z2, a2, z3, p
 
@@ -83,8 +82,6 @@ class BayesianNeuralNetwork:
         _, _, _, _, _, _, _, _, _, _, z3, p = self._forward(theta)
 
         # Numerically stable binary cross-entropy
-        # log p(y|x) = y*log(p) + (1-y)*log(1-p)
-        # Use log-sigmoid trick: log(sigmoid(z)) = -log(1+exp(-z)) = -softplus(-z)
         log_lik = np.sum(
             self.y * (-np.logaddexp(0, -z3)) + (1 - self.y) * (-np.logaddexp(0, z3))
         )
@@ -100,7 +97,6 @@ class BayesianNeuralNetwork:
         W1, b1, W2, b2, W3, b3, z1, a1, z2, a2, z3, p = self._forward(theta_safe)
 
         # Backprop through likelihood
-        # d(log_lik)/d(z3) = y - p
         delta3 = (self.y - p).reshape(-1, 1)
 
         # Output layer gradients

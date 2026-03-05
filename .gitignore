@@ -1,6 +1,7 @@
 .venv
 output/
 *copie*
+*.md
 
 # Latex files
 *.aux

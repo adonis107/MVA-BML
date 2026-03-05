@@ -8,16 +8,16 @@ class StochasticVolatility:
         self.R = R
 
     def log_p(self, theta):
-        # Prevent leapfrog explosions during initialization
+        # safety
         if np.any(np.abs(theta[:-1]) > 30.0) or theta[-1] < -15.0 or theta[-1] > 15.0:
             return -np.inf
 
-        x = theta[:-1]       # x_i = log(s_i)
-        alpha = theta[-1]    # alpha = log(nu)
+        x = theta[:-1]   
+        alpha = theta[-1]
 
         v = np.exp(alpha)
         s = np.exp(x)
-        z = self.R * np.exp(-x)   # R_i / s_i
+        z = self.R * np.exp(-x)
 
         # Exponential priors on nu and s_1
         L1 = -0.01 * v - 0.01 * s[0]
@@ -30,7 +30,7 @@ class StochasticVolatility:
         U = 0.01 + 0.5 * S_sq
         L3 = -(3001.0 / 2.0) * np.log(U)
 
-        # Log-Jacobian of transformations (s -> x, nu -> alpha)
+        # Log-Jacobian of transformations
         L4 = alpha + np.sum(x)
 
         return L1 + L2 + L3 + L4

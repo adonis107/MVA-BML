@@ -30,14 +30,11 @@ class NealsFunnel:
         v = theta[0]
         x = theta[1:]
 
-        # Guard against extreme values that would cause overflow
+        # Overflow safety
         if np.abs(v) > 50.0 or np.any(np.abs(x) > 1e6):
             return -np.inf
 
-        # log p(v) = -v^2 / (2 * sigma_v^2)
         log_pv = -0.5 * v ** 2 / self.sigma_v_sq
-
-        # log p(x | v) = -9/2 * v - 1/(2*exp(v)) * sum(x_i^2)
         log_px_given_v = -0.5 * (self.d - 1) * v - 0.5 * np.exp(-v) * np.sum(x ** 2)
 
         return log_pv + log_px_given_v
@@ -52,12 +49,8 @@ class NealsFunnel:
 
         grad = np.zeros_like(theta_safe)
 
-        # d/dv log p(v) = -v / sigma_v^2
-        # d/dv log p(x|v) = -9/2 + 1/(2*exp(v)) * sum(x_i^2)
         sum_x_sq = np.sum(x ** 2)
         grad[0] = -v / self.sigma_v_sq - 0.5 * (self.d - 1) + 0.5 * np.exp(-v) * sum_x_sq
-
-        # d/dx_i log p(x|v) = -x_i / exp(v) = -x_i * exp(-v)
         grad[1:] = -x * np.exp(-v)
 
         return grad
