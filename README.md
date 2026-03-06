@@ -54,7 +54,7 @@ results/               # Saved CSV outputs (ESS/grad per model & delta)
 
 ```bash
 # Clone the repository
-git clone https://github.com/<your-username>/MVA-BML.git
+git clone https://github.com/adonis107/MVA-BML.git
 cd MVA-BML
 
 # Create and activate a virtual environment
@@ -62,6 +62,7 @@ python -m venv .venv
 source .venv/bin/activate
 
 # Install the package and dependencies
+pip install -r requirements.txt
 pip install -e .
 ```
 
