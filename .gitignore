@@ -2,6 +2,7 @@
 output/
 *copie*
 *.md
+!README.md
 
 # Latex files
 *.aux
